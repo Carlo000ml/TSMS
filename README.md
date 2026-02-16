@@ -137,3 +137,37 @@ from(bucket: "tutorial")
 - `src/tsms_tutorial/main.py`: CLI for `ingest` and `query`.
 - `telegraf/telegraf.conf`: Kafka input and InfluxDB output for Telegraf.
 - `kapacitor/kapacitor.conf`: baseline Kapacitor configuration.
+
+---
+
+## 7) Running on remote servers with Apptainer
+
+If your remote server uses **Apptainer** instead of Docker, the **Python code does not need to change**.
+Only the container orchestration layer changes.
+
+### What changes vs Docker Compose
+
+- Keep Python code and CLI commands unchanged (`ingest`, `query`).
+- Replace `docker compose up -d` with Apptainer workflows (one service per container/instance).
+- Keep the same exposed endpoints used by `.env`:
+  - InfluxDB: `http://localhost:8086`
+  - Kafka bootstrap from host: `localhost:29092`
+
+### Practical Apptainer approach
+
+1. Pull OCI images as SIF files (InfluxDB, Telegraf, Kafka, Zookeeper, Chronograf, Kapacitor).
+2. Start each service as an Apptainer instance (or via your scheduler/HPC wrapper).
+3. Bind configuration files:
+   - `telegraf/telegraf.conf` -> `/etc/telegraf/telegraf.conf`
+   - `kapacitor/kapacitor.conf` -> `/etc/kapacitor/kapacitor.conf`
+4. Bind persistent directories for InfluxDB/Kapacitor data.
+5. Ensure network reachability among services (same host network or explicit port mapping strategy).
+
+> Note: in HPC environments, Kafka + Zookeeper may be managed externally. In that case,
+> set `KAFKA_BOOTSTRAP_SERVERS` in `.env` to your managed broker address and keep Telegraf
+> pointed to that broker.
+
+### Conclusion
+
+- **Application logic:** unchanged.
+- **Deployment/runtime:** switch from Compose to Apptainer instances.
