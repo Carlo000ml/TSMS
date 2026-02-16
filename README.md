@@ -77,9 +77,12 @@ Quick diagnostics:
 
 ```bash
 ./apptainer/status_stack.sh
+apptainer exec instance://tsms-kafka ps aux
 apptainer exec instance://tsms-influxdb ps aux
 apptainer exec instance://tsms-kapacitor ps aux
 ```
+
+If Kafka fails the readiness check on first startup, wait ~1-3 minutes and re-run `./apptainer/start_stack.sh`.
 
 ---
 
