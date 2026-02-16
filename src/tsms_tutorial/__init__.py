@@ -1,1 +1,1 @@
-"""Toolkit for TSMS tutorials with InfluxDB, TimeScaleDB, and ClickHouse."""
+"""Toolkit for TSMS tutorials focused on InfluxDB ingestion and querying."""

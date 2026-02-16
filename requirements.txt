@@ -1,9 +1,6 @@
-clickhouse-connect==0.8.15
 influxdb-client==1.43.0
+kafka-python==2.0.2
 numpy==1.26.4
 pandas==2.2.3
-psycopg2-binary==2.9.10
 python-dotenv==1.0.1
-scikit-learn==1.5.2
-statsmodels==0.14.4
 timesynth==0.2.4

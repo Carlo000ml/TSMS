@@ -1,4 +1,28 @@
 services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.6.1
+    container_name: tsms-zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+
+  kafka:
+    image: confluentinc/cp-kafka:7.6.1
+    container_name: tsms-kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+      - "29092:29092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,PLAINTEXT_HOST://0.0.0.0:29092
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+
   influxdb:
     image: influxdb:2.7
     container_name: tsms-influxdb
@@ -14,33 +38,41 @@ services:
     volumes:
       - influxdb-data:/var/lib/influxdb2
 
-  timescaledb:
-    image: timescale/timescaledb:latest-pg16
-    container_name: tsms-timescaledb
-    ports:
-      - "5432:5432"
+  telegraf:
+    image: telegraf:1.31
+    container_name: tsms-telegraf
+    depends_on:
+      - kafka
+      - influxdb
     environment:
-      POSTGRES_DB: tsms
-      POSTGRES_USER: tsms
-      POSTGRES_PASSWORD: tsms123
+      INFLUX_TOKEN: supersecrettoken
+      INFLUX_ORG: tsms
+      INFLUX_BUCKET: tutorial
     volumes:
-      - timescaledb-data:/var/lib/postgresql/data
-      - ./sql/init_timescaledb.sql:/docker-entrypoint-initdb.d/init_timescaledb.sql:ro
+      - ./telegraf/telegraf.conf:/etc/telegraf/telegraf.conf:ro
 
-  clickhouse:
-    image: clickhouse/clickhouse-server:24.8
-    container_name: tsms-clickhouse
-    ports:
-      - "8123:8123"
-      - "9000:9000"
+  chronograf:
+    image: chronograf:1.10
+    container_name: tsms-chronograf
+    depends_on:
+      - influxdb
+      - kapacitor
     environment:
-      CLICKHOUSE_DB: tsms
-      CLICKHOUSE_USER: tsms
-      CLICKHOUSE_PASSWORD: tsms123
+      KAPACITOR_URL: http://kapacitor:9092
+    ports:
+      - "8888:8888"
+
+  kapacitor:
+    image: kapacitor:1.7
+    container_name: tsms-kapacitor
+    depends_on:
+      - influxdb
+    ports:
+      - "9093:9092"
     volumes:
-      - clickhouse-data:/var/lib/clickhouse
+      - ./kapacitor/kapacitor.conf:/etc/kapacitor/kapacitor.conf:ro
+      - kapacitor-data:/var/lib/kapacitor
 
 volumes:
   influxdb-data:
-  timescaledb-data:
-  clickhouse-data:
+  kapacitor-data:
