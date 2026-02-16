@@ -73,8 +73,7 @@ unset APPTAINERENV_INFLUX_TOKEN APPTAINERENV_INFLUX_ORG APPTAINERENV_INFLUX_BUCK
 start_instance tsms-kapacitor kapacitor:1.7 \
   --writable-tmpfs \
   --bind "${ROOT_DIR}/kapacitor/kapacitor.conf:/etc/kapacitor/kapacitor.conf:ro" \
-  --bind "${DATA_DIR}/kapacitor:/var/lib/kapacitor" \
-  --network-args "portmap=9094:9092/tcp"
+  --bind "${DATA_DIR}/kapacitor:/var/lib/kapacitor"
 
 # Chronograf (point to Kapacitor on the remapped port)
 export APPTAINERENV_KAPACITOR_URL=http://localhost:9094
