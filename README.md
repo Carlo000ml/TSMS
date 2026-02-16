@@ -41,6 +41,7 @@ apptainer --version
 
 ---
 
+
 ## 2) Start the stack (Apptainer, Kafka KRaft)
 
 From repository root:
@@ -65,10 +66,20 @@ Default endpoints:
 
 - InfluxDB: `http://localhost:8086`
 - Chronograf UI: `http://localhost:8888`
-- Kapacitor API: `http://localhost:9092`
+- Kapacitor API: `http://localhost:9094`
 - Kafka bootstrap: `localhost:9092`
 
 Kafka is configured in **KRaft** mode in `apptainer/start_stack.sh`, so no ZooKeeper service is required.
+
+If startup succeeds but endpoints are not reachable, `start_stack.sh` now performs readiness checks and exits with an error if a service does not answer.
+
+Quick diagnostics:
+
+```bash
+./apptainer/status_stack.sh
+apptainer exec instance://tsms-influxdb ps aux
+apptainer exec instance://tsms-kapacitor ps aux
+```
 
 ---
 
