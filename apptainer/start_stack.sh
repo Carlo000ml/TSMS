@@ -77,7 +77,8 @@ export APPTAINERENV_KAFKA_LOG_DIRS=/var/lib/kafka/data
 export APPTAINERENV_CLUSTER_ID=MkU3OEVBNTcwNTJENDM2Qk  # This is a random UUID
 start_instance tsms-kafka confluentinc/cp-kafka:7.6.1 \
   --writable-tmpfs \
-  --bind "${DATA_DIR}/kafka:/var/lib/kafka/data"
+  --bind "${DATA_DIR}/kafka:/var/lib/kafka/data" \
+  /etc/confluent/docker/run
 unset APPTAINERENV_KAFKA_NODE_ID APPTAINERENV_KAFKA_PROCESS_ROLES \
   APPTAINERENV_KAFKA_CONTROLLER_QUORUM_VOTERS APPTAINERENV_KAFKA_LISTENERS \
   APPTAINERENV_KAFKA_ADVERTISED_LISTENERS APPTAINERENV_KAFKA_LISTENER_SECURITY_PROTOCOL_MAP \
