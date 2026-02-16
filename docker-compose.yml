@@ -1,0 +1,46 @@
+services:
+  influxdb:
+    image: influxdb:2.7
+    container_name: tsms-influxdb
+    ports:
+      - "8086:8086"
+    environment:
+      DOCKER_INFLUXDB_INIT_MODE: setup
+      DOCKER_INFLUXDB_INIT_USERNAME: admin
+      DOCKER_INFLUXDB_INIT_PASSWORD: admin12345
+      DOCKER_INFLUXDB_INIT_ORG: tsms
+      DOCKER_INFLUXDB_INIT_BUCKET: tutorial
+      DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: supersecrettoken
+    volumes:
+      - influxdb-data:/var/lib/influxdb2
+
+  timescaledb:
+    image: timescale/timescaledb:latest-pg16
+    container_name: tsms-timescaledb
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: tsms
+      POSTGRES_USER: tsms
+      POSTGRES_PASSWORD: tsms123
+    volumes:
+      - timescaledb-data:/var/lib/postgresql/data
+      - ./sql/init_timescaledb.sql:/docker-entrypoint-initdb.d/init_timescaledb.sql:ro
+
+  clickhouse:
+    image: clickhouse/clickhouse-server:24.8
+    container_name: tsms-clickhouse
+    ports:
+      - "8123:8123"
+      - "9000:9000"
+    environment:
+      CLICKHOUSE_DB: tsms
+      CLICKHOUSE_USER: tsms
+      CLICKHOUSE_PASSWORD: tsms123
+    volumes:
+      - clickhouse-data:/var/lib/clickhouse
+
+volumes:
+  influxdb-data:
+  timescaledb-data:
+  clickhouse-data:
