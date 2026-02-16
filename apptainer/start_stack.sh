@@ -23,7 +23,7 @@ start_instance() {
 wait_for_http() {
   local url="$1"
   local name="$2"
-  local max_attempts="${3:-30}"
+  local max_attempts="${3:-90}"
   local sleep_seconds="${4:-2}"
 
   for ((attempt = 1; attempt <= max_attempts; attempt++)); do
@@ -35,7 +35,7 @@ wait_for_http() {
   done
 
   echo "[error] ${name} is not reachable at ${url}"
-  echo "[hint] inspect process with: apptainer exec instance://${name} ps aux"
+  echo "[hint] inspect with: apptainer exec instance://${name} ps aux"
   return 1
 }
 
@@ -55,26 +55,7 @@ wait_for_tcp() {
   done
 
   echo "[error] ${name} is not reachable at ${host}:${port}"
-  echo "[hint] inspect process with: apptainer exec instance://${name} ps aux"
-  return 1
-}
-
-wait_for_process() {
-  local name="$1"
-  local pattern="$2"
-  local max_attempts="${3:-60}"
-  local sleep_seconds="${4:-2}"
-
-  for ((attempt = 1; attempt <= max_attempts; attempt++)); do
-    if apptainer exec "instance://${name}" sh -lc "ps aux | grep -E '${pattern}' | grep -v grep" >/dev/null 2>&1; then
-      echo "[ready] ${name} process matched pattern: ${pattern}"
-      return 0
-    fi
-    sleep "$sleep_seconds"
-  done
-
-  echo "[error] ${name} process pattern not found: ${pattern}"
-  echo "[hint] inspect process with: apptainer exec instance://${name} ps aux"
+  echo "[hint] inspect with: apptainer exec instance://${name} ps aux"
   return 1
 }
 
@@ -139,7 +120,6 @@ start_instance tsms-chronograf chronograf:1.10 --writable-tmpfs
 unset APPTAINERENV_KAPACITOR_URL
 
 # readiness checks
-wait_for_process tsms-kafka "kafka\.Kafka"
 wait_for_tcp localhost 9092 tsms-kafka 120 2
 wait_for_http http://localhost:8086/health tsms-influxdb 90 2
 wait_for_http http://localhost:9094/kapacitor/v1/ping tsms-kapacitor 90 2
