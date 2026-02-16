@@ -18,5 +18,5 @@ class InfluxConfig:
 
 @dataclass(frozen=True)
 class KafkaConfig:
-    bootstrap_servers: str = os.getenv("KAFKA_BOOTSTRAP_SERVERS", "localhost:29092")
+    bootstrap_servers: str = os.getenv("KAFKA_BOOTSTRAP_SERVERS", "localhost:9092")
     topic: str = os.getenv("KAFKA_TOPIC", "tsms-metrics")
